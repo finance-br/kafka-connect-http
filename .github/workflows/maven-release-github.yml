@@ -20,11 +20,7 @@ jobs:
           java-version: 1.8
           server-id: github
 
-      - name: Install GPG Private Key
-        run: echo -e "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-
       - name: Release
-        run: mvn -B deploy -P package,sign
+        run: mvn -B deploy -P package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

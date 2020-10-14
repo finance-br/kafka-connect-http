@@ -39,18 +39,3 @@ jobs:
         with:
           name: Package
           path: staging
-
-      - name: Prepare site
-        run: mkdir site && cp -r target/site/* site
-      - name: Archive site
-        uses: actions/upload-artifact@v1
-        with:
-          name: Coverage report
-          path: site
-
-      - name: Publish coverage
-        uses: codacy/codacy-coverage-reporter-action@master
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: target/site/jacoco-ut/jacoco.xml
-
