@@ -21,6 +21,8 @@ package com.github.castorm.kafka.connect.http.response.jackson;
  */
 
 import com.fasterxml.jackson.core.JsonPointer;
+import com.github.castorm.kafka.connect.http.response.body.decoder.JacksonBodyDecoder;
+import com.github.castorm.kafka.connect.http.response.spi.BodyDecoder;
 import lombok.Getter;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
@@ -37,8 +39,8 @@ import static com.github.castorm.kafka.connect.common.ConfigUtils.breakDownList;
 import static com.github.castorm.kafka.connect.common.ConfigUtils.breakDownMap;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static org.apache.kafka.common.config.ConfigDef.Importance.HIGH;
-import static org.apache.kafka.common.config.ConfigDef.Importance.MEDIUM;
+import static org.apache.kafka.common.config.ConfigDef.Importance.*;
+import static org.apache.kafka.common.config.ConfigDef.Type.CLASS;
 import static org.apache.kafka.common.config.ConfigDef.Type.STRING;
 
 @Getter
@@ -49,12 +51,14 @@ public class JacksonRecordParserConfig extends AbstractConfig {
     private static final String ITEM_KEY_POINTER = "http.response.record.key.pointer";
     private static final String ITEM_TIMESTAMP_POINTER = "http.response.record.timestamp.pointer";
     private static final String ITEM_OFFSET_VALUE_POINTER = "http.response.record.offset.pointer";
+    private static final String BODY_DECODER = "http.response.body.decoder";
 
     private final JsonPointer recordsPointer;
     private final List<JsonPointer> keyPointer;
     private final JsonPointer valuePointer;
     private final Optional<JsonPointer> timestampPointer;
     private final Map<String, JsonPointer> offsetPointers;
+    private final BodyDecoder bodyDecoder;
 
     JacksonRecordParserConfig(Map<String, ?> originals) {
         super(config(), originals);
@@ -65,6 +69,7 @@ public class JacksonRecordParserConfig extends AbstractConfig {
         offsetPointers = breakDownMap(getString(ITEM_OFFSET_VALUE_POINTER)).entrySet().stream()
                 .map(entry -> new SimpleEntry<>(entry.getKey(), compile(entry.getValue())))
                 .collect(toMap(Entry::getKey, Entry::getValue));
+        bodyDecoder = getConfiguredInstance(BODY_DECODER, BodyDecoder.class);
     }
 
     public static ConfigDef config() {
@@ -73,6 +78,7 @@ public class JacksonRecordParserConfig extends AbstractConfig {
                 .define(ITEM_POINTER, STRING, "/", HIGH, "Item JsonPointer")
                 .define(ITEM_KEY_POINTER, STRING, null, HIGH, "Item Key JsonPointers")
                 .define(ITEM_TIMESTAMP_POINTER, STRING, null, MEDIUM, "Item Timestamp JsonPointer")
-                .define(ITEM_OFFSET_VALUE_POINTER, STRING, "", MEDIUM, "Item Offset JsonPointers");
+                .define(ITEM_OFFSET_VALUE_POINTER, STRING, "", MEDIUM, "Item Offset JsonPointers")
+                .define(BODY_DECODER, CLASS, JacksonBodyDecoder.class, MEDIUM, "Class to decode the Http Response");
     }
 }

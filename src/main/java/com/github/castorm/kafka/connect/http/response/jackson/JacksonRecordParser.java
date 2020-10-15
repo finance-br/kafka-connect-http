@@ -23,6 +23,7 @@ package com.github.castorm.kafka.connect.http.response.jackson;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.castorm.kafka.connect.http.response.spi.BodyDecoder;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.kafka.common.Configurable;
@@ -52,6 +53,7 @@ public class JacksonRecordParser implements Configurable {
     private Optional<JsonPointer> timestampPointer;
     private Map<String, JsonPointer> offsetPointers;
     private JsonPointer valuePointer;
+    private BodyDecoder bodyDecoder;
 
     public JacksonRecordParser() {
         this(JacksonRecordParserConfig::new, new ObjectMapper(), new JacksonPropertyResolver());
@@ -65,10 +67,11 @@ public class JacksonRecordParser implements Configurable {
         valuePointer = config.getValuePointer();
         offsetPointers = config.getOffsetPointers();
         timestampPointer = config.getTimestampPointer();
+        bodyDecoder = config.getBodyDecoder();
     }
 
     Stream<JsonNode> getRecords(byte[] body) {
-        return propertyResolver.getArrayAt(deserialize(body), recordsPointer);
+        return propertyResolver.getArrayAt(deserialize(bodyDecoder.parse(body)), recordsPointer);
     }
 
     Optional<String> getKey(JsonNode node) {

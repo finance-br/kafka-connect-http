@@ -23,6 +23,8 @@ package com.github.castorm.kafka.connect.http.response.jackson;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.castorm.kafka.connect.http.response.body.decoder.JacksonBodyDecoder;
+import com.github.castorm.kafka.connect.http.response.spi.BodyDecoder;
 import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,13 +37,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.fasterxml.jackson.core.JsonPointer.compile;
-import static com.github.castorm.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.deserialize;
-import static com.github.castorm.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.item1;
-import static com.github.castorm.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.item2;
-import static com.github.castorm.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.itemArray;
-import static com.github.castorm.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.mapper;
-import static com.github.castorm.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.pointer;
-import static com.github.castorm.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.property;
+import static com.github.castorm.kafka.connect.http.response.jackson.JacksonRecordParserTest.Fixture.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -67,7 +63,7 @@ class JacksonRecordParserTest {
 
     @Test
     void givenPointer_whenGetItemsArray_thenAllReturned() {
-
+        given(config.getBodyDecoder()).willReturn(bodyDecoder);
         given(config.getRecordsPointer()).willReturn(pointer);
         given(propertyResolver.getArrayAt(deserialize(itemArray), pointer)).willReturn(Stream.of(deserialize(item1), deserialize(item2)));
         parser.configure(emptyMap());
@@ -162,6 +158,7 @@ class JacksonRecordParserTest {
         String itemArray = "{\"items\":[" + item1 + "," + item2 + "]}";
         String itemNested = "{\"items\":" + item1 + "}";
         JsonPointer pointer = compile("/items");
+        BodyDecoder bodyDecoder = new JacksonBodyDecoder();
 
         @SneakyThrows
         static JsonNode deserialize(String body) {
