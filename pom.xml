@@ -56,7 +56,7 @@
     </distributionManagement>
 
     <properties>
-        <java.version>8</java.version>
+        <java.version>9</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -212,8 +212,6 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.0.0-M1</version>
-                <source>9</source>
-                <target>9</target>
                 <configuration>
                     <releaseProfiles>package,release</releaseProfiles>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
