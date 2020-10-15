@@ -212,6 +212,8 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.0.0-M1</version>
+                <source>9</source>
+                <target>9</target>
                 <configuration>
                     <releaseProfiles>package,release</releaseProfiles>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
