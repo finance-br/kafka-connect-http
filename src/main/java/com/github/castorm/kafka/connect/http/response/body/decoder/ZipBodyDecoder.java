@@ -24,6 +24,7 @@ import com.github.castorm.kafka.connect.http.response.spi.BodyDecoder;
 import lombok.SneakyThrows;
 
 import java.io.ByteArrayInputStream;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class ZipBodyDecoder implements BodyDecoder {
@@ -36,8 +37,11 @@ public class ZipBodyDecoder implements BodyDecoder {
 
     ByteArrayInputStream byteStream = new ByteArrayInputStream(body);
     ZipInputStream zipStream = new ZipInputStream(byteStream);
-    zipStream.getNextEntry();
+    ZipEntry nextEntry = zipStream.getNextEntry();
 
-    return zipStream.readAllBytes();
+    byte[] output = new byte[(int) nextEntry.getSize()];
+    zipStream.read(output, 0, output.length);
+
+    return output;
   }
 }
